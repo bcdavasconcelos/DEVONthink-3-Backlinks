@@ -1,19 +1,22 @@
 # Retrieve Backlinks A
 
-```
+```applescript
 -- bcdavasconcelos 
 -- Source: https://github.com/bcdavasconcelos/DEVONthink-3-Backlinks
 
 property UseAliases : true
-property AutoWiki_Links : true -- change to false for wiki links between double brackets, e.g. "[[link]]"
+property AutoWiki_Links : false -- change to false for wiki links between double brackets, e.g. "[[link]]"
 property theKind : "extension:md" -- the extension you will be looking for
 property theDelimiter : "#### Backlinks" -- Delimiter of choice. e.g. # Backlinks
 property limit : 60 -- limit for the number of backlinks
 property removeduplicates : false
+property theSeparator : " | " -- this will stand between the links. It can be just a space or some other random character. 
 
-on performSmartRule(theSources)
+
+-- tell application id "DNtp" to my PerformSmartRule(selection as list)
+on PerformSmartRule(theSources)
 	tell application id "DNtp"
-		--	set theSources to selection
+		set theSources to selection
 		
 		show progress indicator "Updating return links" with cancel button
 		
@@ -28,7 +31,7 @@ on performSmartRule(theSources)
 		hide progress indicator
 		
 	end tell
-end performSmartRule
+end PerformSmartRule
 
 -- Handlers section
 on get_list(theSource)
@@ -62,14 +65,14 @@ on get_list(theSource)
 				if AutoWiki_Links is false then
 					set theText to the plain text of theRecord
 					if theText contains "[[" & theName & "]]" then
-						set the end of theList to "[[" & theRecordName & "]] | "
+						set the end of theList to "[[" & theRecordName & "]]" & theSeparator
 					else if theText does not contain "[[" & theRecordName & "]]" then
-						set the end of theList to ""
+						
 					end if
 				end if
 				
 				if AutoWiki_Links is true then
-					set the end of theList to theRecordName & " | "
+					set the end of theList to theRecordName & theSeparator
 					
 				end if
 			end if
@@ -104,9 +107,8 @@ on replace_section(theSource, theList)
 		try
 			set theText to item 1 of theDelimitedList
 			set theText to my trimtext(theText, linefeed, "end")
-			
-			set theText to theText & linefeed & linefeed & theDelimiter & linefeed & linefeed & theList as text
-			
+			if (theList as text) contains theSeparator then set theText to theText & linefeed & linefeed & theDelimiter & linefeed & linefeed & theList as text
+			if theList does not contain theSeparator then set theText to theText
 			return theText
 		end try
 	end tell
@@ -184,5 +186,6 @@ on removeDuplicateRecords(inputList)
 	
 	return outputList
 end removeDuplicateRecords
+
 
 ```
